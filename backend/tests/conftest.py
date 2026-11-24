@@ -8,7 +8,6 @@ from fastapi.testclient import TestClient
 from backend.app.main import app
 from backend.app.database.session import Base, get_db
 
-# Import all models to register their tables.
 from backend.app.models.user import User, UserPreferences
 from backend.app.models.email_otp import EmailOTP
 from backend.app.models.refresh_token import RefreshToken
@@ -16,6 +15,7 @@ from backend.app.models.used_refresh_token import UsedRefreshToken
 from backend.app.models.security_event import SecurityEvent
 
 from backend.app.core.config import settings
+from backend.app.services import otp_service
 
 
 TEST_DATABASE_NAME = "tone_neuron_test"
@@ -29,33 +29,31 @@ TEST_DATABASE_URL = URL.create(
     database=TEST_DATABASE_NAME,
 )
 
-assert TEST_DATABASE_URL.database == TEST_DATABASE_NAME, (
-    "Tests must only use tone_neuron_test"
-)
+assert TEST_DATABASE_URL.database == TEST_DATABASE_NAME
 
 
 @pytest.fixture(scope="session")
 def test_engine():
+
     engine = create_engine(
         TEST_DATABASE_URL,
         pool_pre_ping=True,
     )
 
-    # Create tables only in the isolated test database.
+    # Reset only the dedicated test database.
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
     yield engine
 
-    # Clean up only the test database.
     Base.metadata.drop_all(bind=engine)
-
     engine.dispose()
 
 
 @pytest.fixture
 def db_session(test_engine):
-    connection = test_engine.connect()
 
+    connection = test_engine.connect()
     transaction = connection.begin()
 
     TestingSessionLocal = sessionmaker(
@@ -76,7 +74,27 @@ def db_session(test_engine):
 
 
 @pytest.fixture
-def client(db_session):
+def sent_otps():
+    return []
+
+
+@pytest.fixture
+def client(db_session, monkeypatch, sent_otps):
+
+    def fake_send_verification_email(
+        recipient_email: str,
+        otp: str,
+    ):
+        sent_otps.append({
+            "email": recipient_email,
+            "otp": otp,
+        })
+
+    monkeypatch.setattr(
+        otp_service,
+        "send_verification_email",
+        fake_send_verification_email,
+    )
 
     def override_get_db():
         yield db_session
