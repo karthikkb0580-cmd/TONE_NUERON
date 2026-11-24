@@ -153,3 +153,10 @@ class UserPreferences(Base):
         server_default=false(),
         nullable=False,
     )
+
+    analytics_enabled: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default=false(),
+        nullable=False,
+    )

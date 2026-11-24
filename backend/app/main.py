@@ -78,3 +78,11 @@ app.include_router(account_router)
 from backend.app.api.conversations import router as conversation_router
 
 app.include_router(conversation_router)
+
+from backend.app.api.feedback import router as feedback_router
+from backend.app.api.desktop import router as desktop_router
+from backend.app.api.analytics import router as analytics_router
+
+app.include_router(feedback_router)
+app.include_router(desktop_router)
+app.include_router(analytics_router)
