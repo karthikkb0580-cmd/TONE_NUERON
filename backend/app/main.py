@@ -86,3 +86,7 @@ from backend.app.api.analytics import router as analytics_router
 app.include_router(feedback_router)
 app.include_router(desktop_router)
 app.include_router(analytics_router)
+
+from backend.app.middleware.setup import configure_middleware
+
+configure_middleware(app)
