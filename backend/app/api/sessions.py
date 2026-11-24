@@ -27,6 +27,11 @@ from backend.app.services.security_event_service import (
     log_security_event,
     SecurityEventType,
 )
+from fastapi import Request
+
+from backend.app.services.session_service import (
+    refresh_session,
+)
 
 
 router = APIRouter(
@@ -34,28 +39,27 @@ router = APIRouter(
     tags=["Sessions"],
 )
 
-
-# =========================================================
-# REFRESH ACCESS TOKEN
-# =========================================================
-
 @router.post(
     "/refresh",
     response_model=TokenPairResponse,
 )
 def refresh_token(
+    request: Request,
     data: RefreshRequest,
     db: Session = Depends(get_db),
 ):
+
+    ip_address = (
+        request.client.host
+        if request.client
+        else None
+    )
+
     return refresh_session(
         db,
         data.refresh_token,
+        ip_address=ip_address,
     )
-
-
-# =========================================================
-# LOGOUT CURRENT SESSION
-# =========================================================
 
 @router.post("/logout")
 def logout(
@@ -84,11 +88,6 @@ def logout(
     return {
         "message": "Logged out successfully."
     }
-
-
-# =========================================================
-# LOGOUT FROM ALL SESSIONS
-# =========================================================
 
 @router.post("/logout-all")
 def logout_all(
@@ -126,11 +125,6 @@ def logout_all(
             "Logged out from all sessions successfully."
         )
     }
-
-
-# =========================================================
-# LIST ACTIVE SESSIONS
-# =========================================================
 
 @router.get("/sessions")
 def list_sessions(
