@@ -90,3 +90,7 @@ app.include_router(analytics_router)
 from backend.app.middleware.setup import configure_middleware
 
 configure_middleware(app)
+
+from backend.app.api.privacy import router as privacy_router
+
+app.include_router(privacy_router)
