@@ -1,13 +1,7 @@
-from datetime import datetime, timedelta, timezone
-
-import jwt
-
 from fastapi import HTTPException
 from pwdlib import PasswordHash
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-
-from backend.app.core.config import settings
 from backend.app.models.user import User
 from backend.app.schemas.auth import RegisterRequest
 from backend.app.services.otp_service import create_email_otp
@@ -127,22 +121,3 @@ def authenticate_user(
         )
 
     return user
-
-
-def create_access_token(user_id) -> str:
-    expires_at = datetime.now(
-        timezone.utc
-    ) + timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
-
-    payload = {
-        "sub": str(user_id),
-        "exp": expires_at,
-    }
-
-    return jwt.encode(
-        payload,
-        settings.JWT_SECRET_KEY,
-        algorithm=settings.JWT_ALGORITHM,
-    )

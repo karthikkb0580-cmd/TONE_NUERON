@@ -20,7 +20,6 @@ from backend.app.services.security_event_service import (
     SecurityEventType,
 )
 
-ACCESS_TOKEN_MINUTES = 15
 REFRESH_TOKEN_DAYS = 7
 
 def utc_now():
@@ -41,7 +40,7 @@ def create_access_token(
         "type": "access",
         "iat": utc_now(),
         "exp": utc_now() + timedelta(
-            minutes=ACCESS_TOKEN_MINUTES
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         ),
     }
 
