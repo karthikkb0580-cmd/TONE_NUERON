@@ -74,3 +74,7 @@ app.include_router(preferences_router)
 from backend.app.api.account import router as account_router
 
 app.include_router(account_router)
+
+from backend.app.api.conversations import router as conversation_router
+
+app.include_router(conversation_router)
