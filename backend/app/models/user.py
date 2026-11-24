@@ -1,4 +1,4 @@
-import uuid
+﻿import uuid
 from datetime import datetime
 
 from sqlalchemy import (
@@ -7,9 +7,11 @@ from sqlalchemy import (
     ForeignKey,
     String,
     func,
+    true,
+    false,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, synonym
 
 from backend.app.database.session import Base
 
@@ -91,5 +93,63 @@ class UserPreferences(Base):
     neuro_avatar: Mapped[str] = mapped_column(
         String(100),
         default="neuro_default",
+        nullable=False,
+    )
+
+    preferred_language = synonym("language_code")
+
+    communication_style: Mapped[str] = mapped_column(
+        String(30),
+        default="professional",
+        server_default="professional",
+        nullable=False,
+    )
+
+    theme: Mapped[str] = mapped_column(
+        String(20),
+        default="system",
+        server_default="system",
+        nullable=False,
+    )
+
+    mascot_enabled: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        server_default=true(),
+        nullable=False,
+    )
+
+    notifications_enabled: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        server_default=true(),
+        nullable=False,
+    )
+
+    grammar_correction: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        server_default=true(),
+        nullable=False,
+    )
+
+    tone_detection: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        server_default=true(),
+        nullable=False,
+    )
+
+    reply_suggestions: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        server_default=true(),
+        nullable=False,
+    )
+
+    conversation_history: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default=false(),
         nullable=False,
     )

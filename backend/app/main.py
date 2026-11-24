@@ -44,3 +44,33 @@ def health():
     return {
         "status": "healthy",
     }
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from backend.app.core.exceptions import EmailDeliveryError
+
+
+@app.exception_handler(EmailDeliveryError)
+async def email_delivery_exception_handler(
+    request: Request,
+    exc: EmailDeliveryError,
+):
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": (
+                "Email delivery is temporarily unavailable. "
+                "Please try requesting a new code."
+            ),
+            "code": "EMAIL_DELIVERY_FAILED",
+        },
+    )
+
+from backend.app.api.profile import router as profile_router
+from backend.app.api.preferences import router as preferences_router
+
+app.include_router(profile_router)
+app.include_router(preferences_router)
+
+from backend.app.api.account import router as account_router
+
+app.include_router(account_router)

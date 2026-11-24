@@ -1,8 +1,9 @@
-import logging
+﻿import logging
 
 import resend
 
 from backend.app.core.config import settings
+from backend.app.core.exceptions import EmailDeliveryError
 
 logger = logging.getLogger(__name__)
 
@@ -14,15 +15,27 @@ def send_email(
 ) -> None:
     resend.api_key = settings.RESEND_API_KEY
 
-    response = resend.Emails.send({
-        "from": settings.EMAIL_FROM,
-        "to": [recipient_email],
-        "subject": subject,
-        "text": body,
-    })
+    try:
+        response = resend.Emails.send({
+            "from": settings.EMAIL_FROM,
+            "to": [recipient_email],
+            "subject": subject,
+            "text": body,
+        })
 
-    if not response.get("id"):
-        raise RuntimeError("Email provider did not accept the request.")
+        if not response or not response.get("id"):
+            raise EmailDeliveryError()
+
+    except EmailDeliveryError:
+        logger.error("Email provider did not accept the request")
+        raise
+
+    except Exception as exc:
+        logger.error(
+            "Email delivery failed: %s",
+            type(exc).__name__,
+        )
+        raise EmailDeliveryError() from exc
 
     logger.info("Email request accepted by provider")
 
@@ -37,7 +50,7 @@ def send_verification_email(
         body=(
             "Welcome to Tone Neuron 2.0!\n\n"
             f"Your verification code is: {otp}\n\n"
-            "This code expires in 3 minutes.\n\n"
+            f"This code expires in {settings.OTP_EXPIRE_MINUTES} minutes.\n\n"
             "Never share this code with anyone."
         ),
     )
@@ -53,7 +66,7 @@ def send_password_reset_email(
         body=(
             "We received a request to reset your password.\n\n"
             f"Your password reset code is: {otp}\n\n"
-            "This code expires in 3 minutes.\n\n"
+            f"This code expires in {settings.OTP_EXPIRE_MINUTES} minutes.\n\n"
             "If you did not request a password reset, "
             "you can ignore this email.\n\n"
             "Never share this code with anyone."
