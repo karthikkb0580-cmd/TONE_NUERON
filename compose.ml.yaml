@@ -1,0 +1,33 @@
+﻿services:
+  backend:
+    environment:
+      ML_SERVICE_URL: http://ml_service:8001
+      ML_SERVICE_API_KEY: ${ML_SERVICE_API_KEY:?ML_SERVICE_API_KEY is required}
+      ML_SERVICE_TIMEOUT_SECONDS: "60"
+      ML_SERVICE_CONNECT_TIMEOUT_SECONDS: "5"
+
+  ml_service:
+    build:
+      context: ./ml_service
+      dockerfile: Dockerfile
+
+    container_name: tone_neuron_ml
+
+    restart: unless-stopped
+
+    environment:
+      ML_SERVICE_API_KEY: ${ML_SERVICE_API_KEY:?ML_SERVICE_API_KEY is required}
+
+    expose:
+      - "8001"
+
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

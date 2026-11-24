@@ -94,3 +94,11 @@ configure_middleware(app)
 from backend.app.api.privacy import router as privacy_router
 
 app.include_router(privacy_router)
+
+from backend.app.api.ai import router as ai_router
+
+app.include_router(ai_router)
+
+from backend.app.api.readiness import router as readiness_router
+
+app.include_router(readiness_router)
