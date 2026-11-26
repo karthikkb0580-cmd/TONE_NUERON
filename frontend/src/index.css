@@ -1,3 +1,42 @@
 @import "tailwindcss";
-@import "./styles/theme.css";
-@import "./styles/globals.css";
+
+:root {
+  font-family: Inter, "Segoe UI", sans-serif;
+  color: #f8f1eb;
+  background: #100d0c;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+}
+
+::selection {
+  color: white;
+  background: #e95d31;
+}
